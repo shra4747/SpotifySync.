@@ -14,19 +14,21 @@ PLAYLIST_NAME = ""
 
 
 def getSpotifyToken():
-    data = st.start_session("AQAM7VaqhrmRjIQrz2enYyC0r0tK-X56eiJwU_mAbY8TlqS7D1iMWyGeEgnR2yIgWqGU6b5Du8NVEt-9joCHWhDDH-gWZjsSPYOUVte-kZPRhSuKdmbgURK6CJXUXjyf6uiTRioTNqBScjBhwRsGJqkXRn1bjcGC",
-                            "db5da52b-8542-4950-beba-7e548b214b66")
+    data = st.start_session("##",
+                            "##")
     access_token = data[0]
     return access_token
+
+
 SPOTIFY_ACCESS_TOKEN = getSpotifyToken()
 
 
 def getAppleMusicToken():
-    textfile = open("AuthKey_3CY7R3J6VR.p8", "r")
+    textfile = open("AUTHKEYFILE", "r")
 
     secret = str(textfile.read())
-    keyId = "3CY7R3J6VR"
-    teamId = "66AVQK2TF9"
+    keyId = "###"
+    teamId = "###"
     alg = 'ES256'
 
     time_now = datetime.datetime.now()
@@ -45,6 +47,8 @@ def getAppleMusicToken():
 
     token = jwt.encode(payload, secret, algorithm=alg, headers=headers)
     return token
+
+
 APPLE_MUSIC_ACCESS_TOKEN = getAppleMusicToken()
 APPLE_SECOND_ACCESS = False
 
@@ -52,25 +56,49 @@ APPLE_SECOND_ACCESS = False
 def chooseApplePlaylist():
     global APPLE_MUSIC_PLAYLIST_ID
     global PLAYLIST_NAME
+    print(APPLE_MUSIC_ACCESS_TOKEN)
     headers = {
         'Content-Type': 'application/json',
-        'Music-User-Token': 'AiwFMOzjHh+6W/edDaw1b7YBv2/kodj+0Orp2sUpRCu4gml35ZRFmTfjPeNxShph5olp7GZ83OSQgwbrcWUmM9Gt8V+rZ2ZCi0KfNoVq6gNe80OfgpFtRvp2y5adEysVwEYwWQUz7Ck9Y7BmY7KorbvSz1RtkAV6DNwcCizRJMY1gdVOQaGQx1zeHMu0GiiN+PuqAa1KLFvQ1g9uQgUqUD0xvRFPgBm6+fV7fC4ZlZ5/eQjdBA==',
+        'Music-User-Token': 'APPLEMUSICMUSICUSERTOKEN',
         'Authorization': f'Bearer {APPLE_MUSIC_ACCESS_TOKEN}',
     }
     response = requests.get(
         'https://api.music.apple.com/v1/me/library/playlists', headers=headers)
+    print(response.json())
+    sys.exit()
     playlists = (response.json()['data'])
     for idx, playlist in enumerate(playlists):
         print(f"{idx}: {playlist['attributes']['name']}")
+    print(f'{len(playlists)+1}. New Playlist*')
 
     chosenPlaylistIndex = int(input("Type Index of Playlist to Convert To: "))
+    if chosenPlaylistIndex == len(playlists)+1:
+        pn = str(input("\nPlaylist Name: "))
+        headers = {
+            'Content-Type': 'application/json',
+            'Music-User-Token': 'APPLEMUSICMUSICUSERTOKEN',
+            'Authorization': f'Bearer {APPLE_MUSIC_ACCESS_TOKEN}'
+        }
+
+        data = '{"attributes": {"name": "'+pn+'", "description": ""}}'
+        response = requests.post(
+            'https://api.music.apple.com/v1/me/library/playlists', headers=headers, data=data)
+        print(response.status_code)
+        newid = (response.json()['data'][0]['id'])
+        APPLE_MUSIC_PLAYLIST_ID = newid
+        PLAYLIST_NAME = pn
+        return
+
     chosenPlaylist = playlists[chosenPlaylistIndex]
     name = chosenPlaylist['attributes']['name']
     id = chosenPlaylist['id']
     APPLE_MUSIC_PLAYLIST_ID = f"{id}"
     PLAYLIST_NAME = name
-chooseApplePlaylist()
 
+
+chooseApplePlaylist()
+print(PLAYLIST_NAME)
+print(APPLE_MUSIC_PLAYLIST_ID)
 
 try:
     with open(f"playlists/{PLAYLIST_NAME}|count.txt", "x") as f:
@@ -83,6 +111,7 @@ try:
         f.write("[]")
 except:
     pass
+
 
 def checkPlaylistCount():
     global SPOTIFY_ACCESS_TOKEN
@@ -141,7 +170,7 @@ def getCurrentPlaylist():
             {"name": track['track']['name'], "addedBy": track['added_by']['id']})
 
     SPOTIFY_ACCESS_TOKEN = getSpotifyToken()
-    
+
     if (response.json()['tracks']['total']) > 100:
         next_link = str(response.json()['tracks']['next'])
         for _ in range(((int(response.json()['tracks']['total'])//100))):
@@ -174,20 +203,18 @@ def addToAppleMusic(songName):
     )
     response = requests.get(
         f'https://api.music.apple.com/v1/catalog/us/search?term={songName.replace("feat. ", "").replace(" ", "+")}&types=songs', headers=headers)
-    
-    id=0
+
+    id = 0
     try:
         id = response.json()['results']['songs']['data'][0]['id']
     except:
         return
-    
 
     headers = {
         'Content-Type': 'application/json',
-        'Music-User-Token': 'AiwFMOzjHh+6W/edDaw1b7YBv2/kodj+0Orp2sUpRCu4gml35ZRFmTfjPeNxShph5olp7GZ83OSQgwbrcWUmM9Gt8V+rZ2ZCi0KfNoVq6gNe80OfgpFtRvp2y5adEysVwEYwWQUz7Ck9Y7BmY7KorbvSz1RtkAV6DNwcCizRJMY1gdVOQaGQx1zeHMu0GiiN+PuqAa1KLFvQ1g9uQgUqUD0xvRFPgBm6+fV7fC4ZlZ5/eQjdBA==',
+        'Music-User-Token': 'APPLEMUSICMUSICUSERTOKEN',
         'Authorization': f'Bearer {APPLE_MUSIC_ACCESS_TOKEN}',
     }
-
 
     data = '{"data": [{"id": "' + f"{id}" + '", "type": "songs"}]}'
     time.sleep(3)
@@ -203,6 +230,7 @@ def addToAppleMusic(songName):
         addToAppleMusic(songName)
     else:
         print("Added", (songName))
+
 
 def getDifference():
     # print(APPLE_MUSIC_PLAYLIST_ID)
@@ -220,19 +248,27 @@ def getDifference():
         previousPlaylistFile.truncate(0)
         previousPlaylistFile.seek(0)
         json.dump(currentPlaylist, previousPlaylistFile)
-    
+
     for track in differences:
         addToAppleMusic(track['name'])
 
-    
     # second_difference = DeepDiff(previousPlaylist, currentPlaylist, ignore_order=False)
     # second_differences = (list(second_difference['iterable_item_added'].values()))
     # All Differences in Old not New - Remove from Playlist
 
 
-while True:
-    if checkIfUpdated():
-        print("----------------------------------------------------------------")
-        getDifference()
-    print("---")
-    time.sleep(INTERVAL)
+while True and (INTERVAL != 0):
+    try:
+        if checkIfUpdated():
+            print("----------------------------------------------------------------")
+            getDifference()
+        print("---")
+        time.sleep(INTERVAL)
+    except KeyboardInterrupt:
+        print("\nStopping Periodic Updates...")
+        sys.exit("Connection closed.")
+else:
+    if INTERVAL == 0:
+        if checkIfUpdated():
+            print("----------------------------------------------------------------")
+            getDifference()

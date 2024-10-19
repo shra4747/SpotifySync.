@@ -6,7 +6,7 @@ def checkPlaylistCount():
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer BQCws__vsW7zTfLyG5iwsgmeRz5qs_poUxUtaoxAOFkwEp9ShgC2ovHUXdli61SrAsYjb9TUB-4uxk10h1Z9uvLJ0ztz1hjX8l1BwGsHVRZ8rEmVQVrKL4SZ82Z3-KfqO6CpI7gmi88',
+        'Authorization': 'Bearer #SPOTIFY_ACCESS_TOKEN#',
     }
 
     response = requests.get(
@@ -35,7 +35,7 @@ sys.exit(0)
 headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer BQCws__vsW7zTfLyG5iwsgmeRz5qs_poUxUtaoxAOFkwEp9ShgC2ovHUXdli61SrAsYjb9TUB-4uxk10h1Z9uvLJ0ztz1hjX8l1BwGsHVRZ8rEmVQVrKL4SZ82Z3-KfqO6CpI7gmi88',
+    'Authorization': 'Bearer #SPOTIFY_ACCESS_TOKEN#',
 }
 params = (
     ('offset', '0'),
@@ -51,7 +51,7 @@ print(items[0]['track']['name'])
 headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer BQCws__vsW7zTfLyG5iwsgmeRz5qs_poUxUtaoxAOFkwEp9ShgC2ovHUXdli61SrAsYjb9TUB-4uxk10h1Z9uvLJ0ztz1hjX8l1BwGsHVRZ8rEmVQVrKL4SZ82Z3-KfqO6CpI7gmi88',
+    'Authorization': 'Bearer #SPOTIFY_ACCESS_TOKEN#',
 }
 params = (
     ('offset', '100'),
